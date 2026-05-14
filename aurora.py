@@ -34,7 +34,7 @@ from datetime import datetime
 
 MEMORY_FILE     = "memory.json"   # persistent move weights
 GAMES_FILE      = "games.json"    # full game records
-TRAINING_GAMES  = 20              # games per training session
+TRAINING_GAMES  = 80              # games per training session
 MINIMAX_DEPTH   = 2               # search depth (1-3 recommended for Colab)
 EXPLORE_RATE    = 0.15            # probability of random exploration move
 MAX_MOVES_GAME  = 200             # cap to avoid infinite games
@@ -518,6 +518,41 @@ def training_session(n_games: int = TRAINING_GAMES) -> None:
 # ──────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # You can change TRAINING_GAMES at the top of the file
-    # or pass a number here, e.g. training_session(50)
-    training_session(TRAINING_GAMES)
+    board = chess.Board()
+    memory = Memory()
+
+    while True:
+        try:
+            command = input()
+
+            if command == "uci":
+                print("id name Aurora")
+                print("id author Khoiking")
+                print("uciok")
+
+            elif command == "isready":
+                print("readyok")
+
+            elif command.startswith("position startpos"):
+                board.reset()
+
+                if "moves" in command:
+                    moves = command.split("moves")[1].strip().split()
+
+                    for move in moves:
+                        board.push_uci(move)
+
+            elif command.startswith("go"):
+                move = select_move(
+                    board,
+                    memory,
+                    board.fullmove_number
+                )
+
+                print(f"bestmove {move}")
+
+            elif command == "quit":
+                break
+
+        except EOFError:
+            break
